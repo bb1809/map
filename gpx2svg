@@ -225,6 +225,7 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
         '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
         '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
     ))
+    fp.write('<!-- Created with gpx2svg {} -->\n'.format(__version__))
     fp.write(
         (
             '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
@@ -283,14 +284,11 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
         fp.close()
 
 def main():
-
     # Setup the command line argument parser
-
     cmdArgParser = argparse.ArgumentParser(
         description = 'Convert GPX formatted geodata to Scalable Vector Graphics (SVG)',
         epilog = 'gpx2svg {} - http://nasauber.de/opensource/gpx2svg/'.format(__version__)
     )
-
     cmdArgParser.add_argument(
         '-i', metavar = 'FILE', nargs = '?', type = str, default = '/dev/stdin',
         help = 'GPX input file (default: read from STDIN)'
