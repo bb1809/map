@@ -35,7 +35,7 @@ def parseGpx(gpxFile):
     try:
         gpx = parseXml(gpxFile)
     except IOError as error:
-        print('Error while reading file: %s. Terminating.' %  error, file = sys.stderr)
+        print('Error while reading file: {}. Terminating.'.format(error), file = sys.stderr)
         sys.exit(1)
     except:
         print('Error while parsing XML data:', file = sys.stderr)
@@ -194,13 +194,13 @@ def createCoordString(segment, height, scale):
     coordString = ''
     for coord in segment:
         x, y = scaleCoords(coord, height, scale)
-        coordString = coordString + ' ' + str(x) + ',' + str(y)
+        coordString = '{} {} {}'.format(coordString, x, y)
 
     return coordString
 
 def createPathString(drawCommand):
     """Return a complete path element for a draw command string"""
-    return '<path d="' + drawCommand + '" style="fill:none;stroke:black" />\n'
+    return '<path d="{}" style="fill:none;stroke:black" />\n'.format(drawCommand)
 
 def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
     """Output the SVG data -- quick 'n' dirty, without messing around with dom stuff ;-)"""
@@ -221,11 +221,15 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
 
     # Header data
     fp.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
-    fp.write('<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"\n  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n')
+    fp.write((
+        '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
+        '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
+    ))
     fp.write(
-        '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="%spx" height="%spx">\n' % (
-            width * scale, height * scale
-        )
+        (
+            '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
+            'width="{}px" height="{}px">\n'
+        ).format(width * scale, height * scale)
     )
 
     # Process all track segments and generate ids and path drawing commands for them
@@ -252,22 +256,23 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
         fp.write('<g>\n')
         for segment in singlePoints:
             x, y = scaleCoords(segment[0], height, scale)
-            fp.write('<circle cx="' + str(x) + '" cy="' + str(y) + '" r="0.5" style="stroke:none;fill:black"/>\n')
+            fp.write(
+                '<circle cx="{}" cy="{}" r="0.5" style="stroke:none;fill:black"/>\n'.format(x, y)
+            )
         fp.write('</g>\n')
 
     # Draw all circular segments
     if len(circularSegments) > 0:
         fp.write('<g>\n')
         for segment in circularSegments:
-            fp.write(createPathString('M' + createCoordString(segment, height, scale) + ' Z'))
+            fp.write(createPathString('M{} Z'.format(createCoordString(segment, height, scale))))
         fp.write('</g>\n')
 
     # Draw all un-closed paths
     if len(straightSegments) > 0:
         fp.write('<g>\n')
         for segment in straightSegments:
-            d = 'M' + createCoordString(segment, height, scale)
-            fp.write(createPathString('M' + createCoordString(segment, height, scale)))
+            fp.write(createPathString('M{}'.format(createCoordString(segment, height, scale))))
         fp.write('</g>\n')
 
     # Close the XML
@@ -283,7 +288,7 @@ def main():
 
     cmdArgParser = argparse.ArgumentParser(
         description = 'Convert GPX formatted geodata to Scalable Vector Graphics (SVG)',
-        epilog = 'gpx2svg %s - http://nasauber.de/opensource/gpx2svg/' % __version__
+        epilog = 'gpx2svg {} - http://nasauber.de/opensource/gpx2svg/'.format(__version__)
     )
 
     cmdArgParser.add_argument(
@@ -305,8 +310,8 @@ def main():
     cmdArgParser.add_argument(
         '-r', action = 'store_true',
         help = (
-            '"Raw" conversion: Create one SVG path per track segment, '
-            'don\'t try to combine paths that end with the starting point of another path'
+            '"Raw" conversion: Create one SVG path per track segment, don\'t try to combine paths '
+            'that end with the starting point of another path'
         )
     )
 
