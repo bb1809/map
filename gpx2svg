@@ -215,7 +215,11 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
 
     # Open the requested output file or map to /dev/stdout
     if outfile != '/dev/stdout':
-        fp = open(outfile, 'w')
+        try:
+            fp = open(outfile, 'w')
+        except IOError as error:
+            print('Can\'t open output file: {}. Terminating.'.format(error), file = sys.stderr)
+            sys.exit(1)
     else:
         fp = sys.stdout
 
