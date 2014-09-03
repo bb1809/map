@@ -1,23 +1,38 @@
-2013-11-07 Tobias Leupold <tobias.leupold@web.de> (Version 0.1.2)
+2014-09-03 Tobias Leupold <tobias.leupold@web.de>
 
-    * Fixed crash when processing GPX files with empty or no path segments.
+    * Release: Version 0.1.3
+
+    - Changed the shebang line so that gpx2svg now also runs on Mac
+
+    - Changed the use of the literal "/dev/stdin" and "/dev/stdout" to sys.stdin and sys.stdout.
+      Hopefully, gpx2svg will now also work on Windows (not tested).
+
+    - Overall code cleanup
+
+2013-11-07 Tobias Leupold <tobias.leupold@web.de>
+
+    * Release: Version 0.1.2
+
+    - Fixed crash when processing GPX files with empty or no path segments.
       Thanks to Fabian Seitz for the bug report!
 
-    * Added exception handler for non-readable or non-existant files or files with no valid GPX
+    - Added exception handler for non-readable or non-existant files or files with no valid GPX
       data.
 
-2012-08-26 Tobias Leupold <tobias.leupold@web.de> (Version 0.1.1)
+2012-08-26 Tobias Leupold <tobias.leupold@web.de>
 
-    * Made the internal data structure simpler. Don't store the IDs of the tracks.
+    * Relase: Version 0.1.1
 
-    * Combine path segments before doing the Mercator projection, so that rounding errors can't
+    - Made the internal data structure simpler. Don't store the IDs of the tracks.
+
+    - Combine path segments before doing the Mercator projection, so that rounding errors can't
       affect the search.
 
-    * Made the algorithm to search for combinable paths more effective.
+    - Made the algorithm to search for combinable paths more effective.
 
-    * Draw circles instead of single points (that will not be shown). Added an command line option
+    - Draw circles instead of single points (that will not be shown). Added an command line option
       to drop such single points.
 
-2012-08-25 Tobias Leupold <tobias.leupold@web.de> (Version 0.1)
+2012-08-25 Tobias Leupold <tobias.leupold@web.de>
 
-    * Initial release
+    * Release: Version 0.1 (Initial release)
