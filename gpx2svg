@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#   Copyright (c) 2012-2014 Tobias Leupold <tobias.leupold@web.de>
+#   Copyright (c) 2012-2015 Tobias Leupold <tobias.leupold@web.de>
 #
 #   gpx2svg - Convert GPX formatted geodata to Scalable Vector Graphics (SVG)
 #
@@ -17,7 +17,7 @@
 #   with this program; if not, write to the Free Software Foundation, Inc.,
 #   59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 import argparse
 import sys
@@ -188,19 +188,10 @@ def scaleCoords(coord, height, scale):
     """Return a scaled pair of coordinates"""
     return(coord[0] * scale, (coord[1] * -1 + height) * scale)
 
-def createCoordString(segment, height, scale):
+def generateScaledSegment(segment, height, scale):
     """Create the coordinate part of an SVG path string from a GPS data segment"""
-
-    coordString = ''
     for coord in segment:
-        x, y = scaleCoords(coord, height, scale)
-        coordString = '{} {} {}'.format(coordString, x, y)
-
-    return coordString
-
-def createPathString(drawCommand):
-    """Return a complete path element for a draw command string"""
-    return '<path d="{}" style="fill:none;stroke:black" />\n'.format(drawCommand)
+        yield(scaleCoords(coord, height, scale))
 
 def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
     """Output the SVG data -- quick 'n' dirty, without messing around with dom stuff ;-)"""
@@ -218,24 +209,18 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
         try:
             fp = open(outfile, 'w')
         except IOError as error:
-            print('Can\'t open output file: {}. Terminating.'.format(error), file = sys.stderr)
+            print("Can't open output file: {}. Terminating.".format(error), file = sys.stderr)
             sys.exit(1)
     else:
         fp = sys.stdout
 
     # Header data
-    fp.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
-    fp.write((
-        '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
-        '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'
-    ))
-    fp.write('<!-- Created with gpx2svg {} -->\n'.format(__version__))
-    fp.write(
-        (
-            '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
-            'width="{}px" height="{}px">\n'
-        ).format(width * scale, height * scale)
-    )
+    fp.write( '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n')
+    fp.write(('<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
+              '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'))
+    fp.write( '<!-- Created with gpx2svg {} -->\n'.format(__version__))
+    fp.write(('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
+              'width="{}px" height="{}px">\n').format(width * scale, height * scale))
 
     # Process all track segments and generate ids and path drawing commands for them
 
@@ -270,14 +255,20 @@ def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
     if len(circularSegments) > 0:
         fp.write('<g>\n')
         for segment in circularSegments:
-            fp.write(createPathString('M{} Z'.format(createCoordString(segment, height, scale))))
+            fp.write('<path d="M')
+            for x, y in generateScaledSegment(segment, height, scale):
+                fp.write(' {} {}'.format(x, y))
+            fp.write(' Z" style="fill:none;stroke:black"/>\n')
         fp.write('</g>\n')
 
     # Draw all un-closed paths
     if len(straightSegments) > 0:
         fp.write('<g>\n')
         for segment in straightSegments:
-            fp.write(createPathString('M{}'.format(createCoordString(segment, height, scale))))
+            fp.write('<path d="M')
+            for x, y in generateScaledSegment(segment, height, scale):
+                fp.write(' {} {}'.format(x, y))
+            fp.write('" style="fill:none;stroke:black"/>\n')
         fp.write('</g>\n')
 
     # Close the XML
@@ -311,10 +302,8 @@ def main():
     )
     cmdArgParser.add_argument(
         '-r', action = 'store_true',
-        help = (
-            '"Raw" conversion: Create one SVG path per track segment, don\'t try to combine paths '
-            'that end with the starting point of another path'
-        )
+        help = ('"Raw" conversion: Create one SVG path per track segment, don\'t try to combine '
+                'paths that end with the starting point of another path')
     )
 
     # Get the given arguments
