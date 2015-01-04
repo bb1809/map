@@ -69,7 +69,7 @@ def calcProjection(gpsData):
             projectedSegment.append(mercatorProjection(coord))
         projectedData.append(projectedSegment)
 
-    return(projectedData)
+    return projectedData
 
 def mercatorProjection(coord):
     """Calculate the Mercator projection of a coordinate pair"""
@@ -84,7 +84,7 @@ def mercatorProjection(coord):
     # Instead, we use this simplified version:
     x = r * coord[0] * math.pi / 180.0
     y = r * math.log(math.tan((math.pi / 4.0) + ((coord[1] * math.pi / 180.0) / 2.0)))
-    return((x, y))
+    return x, y
 
 def moveProjectedData(gpsData):
     """Move a dataset to 0,0 and return it with the resulting width and height"""
@@ -112,7 +112,7 @@ def moveProjectedData(gpsData):
         movedGpsData.append(movedSegment)
 
     # Return the moved data and it's width and height
-    return(movedGpsData, maxX - minX, maxY - minY)
+    return movedGpsData, maxX - minX, maxY - minY
 
 def searchCircularSegments(gpsData):
     """Splits a GPS dataset to tracks that are circular and other tracks"""
@@ -126,7 +126,7 @@ def searchCircularSegments(gpsData):
         else:
             straightSegments.append(segment)
 
-    return(circularSegments, straightSegments)
+    return circularSegments, straightSegments
 
 def combineSegmentPairs(gpsData):
     """Combine segment pairs to one bigger segment"""
@@ -158,7 +158,7 @@ def combineSegmentPairs(gpsData):
             # No segment with a shared point was found, so just append the data to the output
             combinedData.append(firstTrackData)
 
-    return(searchCircularSegments(combinedData))
+    return searchCircularSegments(combinedData)
 
 def combineSegments(gpsData):
     """Combine all segments of a GPS dataset that can be combined"""
@@ -182,16 +182,16 @@ def combineSegments(gpsData):
             # so we can't combine more tracks and can stop here
             break
 
-    return(circularSegments + remainingSegments)
+    return circularSegments + remainingSegments
 
 def scaleCoords(coord, height, scale):
     """Return a scaled pair of coordinates"""
-    return(coord[0] * scale, (coord[1] * -1 + height) * scale)
+    return coord[0] * scale, (coord[1] * -1 + height) * scale
 
 def generateScaledSegment(segment, height, scale):
     """Create the coordinate part of an SVG path string from a GPS data segment"""
     for coord in segment:
-        yield(scaleCoords(coord, height, scale))
+        yield scaleCoords(coord, height, scale)
 
 def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
     """Output the SVG data -- quick 'n' dirty, without messing around with dom stuff ;-)"""
