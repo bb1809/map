@@ -1,6 +1,6 @@
 2015-01-04 Tobias Leupold <tobias.leupold@web.de>
 
-    * Release: Version 0.1.3
+    * Release: Version 0.1.4
 
     - Replaced the function creating a coordinate string for a segment by a generator. Now, segments
       drawing instructions are created step by step instead of assembling a (probably huge) single
