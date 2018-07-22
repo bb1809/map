@@ -184,6 +184,17 @@ def combineSegments(gpsData):
 
     return circularSegments + remainingSegments
 
+def chronologyJoinSegments(gpsData):
+    """Join all segments to a big one in the order defined by the GPX file."""
+    joinedSegment = []
+
+    # Walk through the GPS data
+    for segment in gpsData:
+        for coord in segment:
+            joinedSegment.append(coord)
+
+    return [joinedSegment]
+
 def scaleCoords(coord, height, scale):
     """Return a scaled pair of coordinates"""
     return coord[0] * scale, (coord[1] * -1 + height) * scale
@@ -305,6 +316,12 @@ def main():
         help = ('"Raw" conversion: Create one SVG path per track segment, don\'t try to combine '
                 'paths that end with the starting point of another path')
     )
+    cmdArgParser.add_argument(
+        '-j', action = 'store_true',
+        help = ('Join all segments to a big one in the order of the GPX file. This can create an '
+                'un-scattered path if the default combining algorithm does not work because there '
+                'are no matching points across segments (implies -r)')
+    )
 
     # Get the given arguments
     cmdArgs = cmdArgParser.parse_args()
@@ -331,8 +348,13 @@ def main():
         print('No data to convert. Terminating.', file = sys.stderr)
         sys.exit(1)
 
+    # Join all segments if requested by "-j"
+    if cmdArgs.j:
+        gpsData = chronologyJoinSegments(gpsData)
+
     # Try to combine all track segments that can be combined if not requested otherwise
-    if not cmdArgs.r:
+    # Don't execute if all segments are already joined with "-j"
+    if not cmdArgs.r and not cmdArgs.j:
         gpsData = combineSegments(gpsData)
 
     # Calculate a plane projection for a GPS dataset
