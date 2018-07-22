@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Get the version we're releasing
+version=$(git describe)
+version=${version##*v}
+
+# Create snapshot
+mkdir gpx2svg-$version
+git archive HEAD | tar -xC gpx2svg-$version
+cd gpx2svg-$version
+
+# Update the project version
+sed -i -e "s/@VERSION@/$version/" gpx2svg
+
+# Create the release tarball
+cd ..
+tar -cJf gpx2svg-$version.tar.xz gpx2svg-$version
+rm -r gpx2svg-$version
