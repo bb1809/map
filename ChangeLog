@@ -1,3 +1,5 @@
+====================== gpx2svg 0.1.5 released (22.07.2018) ======================
+
 * New: Added a function to join all segments of a GPX file in the (chronologically) given order of
   the GPS data. This can help to create an un-scattered output if the segments don't share points
   at the beginning and end and thus, the default combining algorithm won't work.
