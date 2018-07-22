@@ -12,6 +12,9 @@ cd gpx2svg-$version
 # Update the project version
 sed -i -e "s/@VERSION@/$version/" gpx2svg
 
+# Remove the "make_release" script
+rm make_release
+
 # Create the release tarball
 cd ..
 tar -cJf gpx2svg-$version.tar.xz gpx2svg-$version
