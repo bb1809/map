@@ -187,12 +187,8 @@ def combineSegments(gpsData):
 def chronologyJoinSegments(gpsData):
     """Join all segments to a big one in the order defined by the GPX file."""
     joinedSegment = []
-
-    # Walk through the GPS data
     for segment in gpsData:
-        for coord in segment:
-            joinedSegment.append(coord)
-
+        joinedSegment += segment
     return [joinedSegment]
 
 def scaleCoords(coord, height, scale):
