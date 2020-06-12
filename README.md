@@ -7,7 +7,3 @@ gpx2svg does, as the name implies, convert a GPX dataset to a SVG file, using th
 ## Homepage
 
 The project's official homepage with further information is <https://nasauber.de/opensource/gpx2svg/>.
-
-## Sources
-
-The official source repository is `git.l3u.de/gpx2svg.git` (can be checked out anonymously using `git://`).
