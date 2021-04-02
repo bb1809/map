@@ -283,7 +283,7 @@ def main():
     # Setup the command line argument parser
     cmdArgParser = argparse.ArgumentParser(
         description = 'Convert GPX formatted geodata to Scalable Vector Graphics (SVG)',
-        epilog = 'gpx2svg {} - http://nasauber.de/opensource/gpx2svg/'.format(__version__)
+        epilog = 'gpx2svg {} - https://nasauber.de/opensource/gpx2svg/'.format(__version__)
     )
     cmdArgParser.add_argument(
         '-i', metavar = 'FILE', nargs = '?', type = str, default = '/dev/stdin',
