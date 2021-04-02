@@ -189,8 +189,13 @@ def generateScaledSegment(segment, height, scale):
     for coord in segment:
         yield scaleCoords(coord, height, scale)
 
-def writeSvgData(gpsData, width, height, maxPixels, dropSinglePoints, outfile):
+def writeSvgData(gpsData, width, height, cmdArgs):
     """Output the SVG data -- quick 'n' dirty, without messing around with dom stuff ;-)"""
+
+    # Pass the cmdArgs settings to nicer variables
+    maxPixels = cmdArgs.m
+    dropSinglePoints = cmdArgs.d
+    outfile = cmdArgs.o
 
     # Calculate the scale factor we need to fit the requested maximal output size
     if width <= maxPixels and height <= maxPixels:
@@ -351,7 +356,7 @@ def main():
     gpsData, width, height = moveProjectedData(gpsData)
 
     # Write the resulting SVG data to the requested output file or STDOUT
-    writeSvgData(gpsData, width, height, cmdArgs.m, cmdArgs.d, cmdArgs.o)
+    writeSvgData(gpsData, width, height, cmdArgs)
 
 if __name__ == '__main__':
     main()
