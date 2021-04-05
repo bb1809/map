@@ -335,6 +335,10 @@ def main():
         help = 'SVG output file (default: write to STDOUT)'
     )
     cmdArgParser.add_argument(
+        '-p', choices = [ 'mercator', 'wgs84' ], default = 'mercator',
+        help = 'Projection to use. The default setting is "mercator"'
+    )
+    cmdArgParser.add_argument(
         '-m', metavar = 'PIXELS', nargs = '?', type = int, default = 3000,
         help = 'Maximum width or height of the SVG output in pixels (default: 3000)'
     )
@@ -390,7 +394,10 @@ def main():
 
     # Calculate a plane projection for a GPS dataset
     # At the moment, we only have the Mercator projection
-    gpsData = calcProjection(gpsData, Projection.Mercator)
+    if cmdArgs.p == 'mercator':
+        gpsData = calcProjection(gpsData, Projection.Mercator)
+    elif cmdArgs.p == 'wgs84':
+        gpsData = calcProjection(gpsData, Projection.WGS84)
 
     # Move the projected data to the 0,0 origin of a cartesial coordinate system
     # and get the raw width and height of the resulting vector data
