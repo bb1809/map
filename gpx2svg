@@ -13,6 +13,11 @@ import sys
 import math
 from xml.dom.minidom import parse as parseXml
 from os.path import abspath
+from enum import Enum
+
+class Projection(Enum):
+    Mercator = 0
+    WGS84 = 1
 
 def parseGpx(gpxFile):
     """Get the latitude and longitude data of all track segments in a GPX file"""
@@ -47,16 +52,28 @@ def parseGpx(gpxFile):
 
     return gpsData
 
-def calcProjection(gpsData):
+def calcProjection(gpsData, projection):
     """Calculate a plane projection for a GPS dataset"""
 
     projectedData = []
-    for segment in gpsData:
-        projectedSegment = []
-        for coord in segment:
-            # At the moment, we only have the Mercator projection
-            projectedSegment.append(mercatorProjection(coord))
-        projectedData.append(projectedSegment)
+
+    if projection == Projection.Mercator:
+        for segment in gpsData:
+            projectedSegment = []
+            for coord in segment:
+                projectedSegment.append(mercatorProjection(coord))
+
+            projectedData.append(projectedSegment)
+
+    elif projection == Projection.WGS84:
+        minX, maxX, minY, maxY = extentOfProjectedData(gpsData)
+
+        for segment in gpsData:
+            projectedSegment = []
+            for coord in segment:
+                projectedSegment.append(wgs84Projection(coord, minY, minX))
+
+            projectedData.append(projectedSegment)
 
     return projectedData
 
@@ -73,12 +90,28 @@ def mercatorProjection(coord):
     # Instead, we use this simplified version:
     x = r * coord[0] * math.pi / 180.0
     y = r * math.log(math.tan((math.pi / 4.0) + ((coord[1] * math.pi / 180.0) / 2.0)))
+
     return x, y
 
-def moveProjectedData(gpsData):
-    """Move a dataset to 0,0 and return it with the resulting width and height"""
+def wgs84Projection(coord, minY, minX):
+    """Calculate the WGS84 projection of a coordinate pair"""
 
-    # Find the minimum and maximum x and y coordinates
+    # Equatorial circumfence according to WGS84
+    equatorialCircumfence = 40075016.68557849 # 6378137.0      * 2 * math.pi
+    # Polar circumfence according to WGS84
+    polarCircumfence = 39940652.74224401      # 6356752.314245 * 2 * math.pi
+
+    deltaLatitude = coord[1] - minY
+    deltaLongitude = coord[0] - minX
+    latitudeCircumference = equatorialCircumfence * math.cos(minY * math.pi / 180.0)
+    x = deltaLongitude * latitudeCircumference * 1000 / 360
+    y = deltaLatitude * polarCircumfence * 1000 / 360
+
+    return x, y
+
+def extentOfProjectedData(gpsData):
+    """Get the extent of a dataset and return the resulting minX, maxX, minY, maxY"""
+
     minX = maxX = gpsData[0][0][0]
     minY = maxY = gpsData[0][0][1]
     for segment in gpsData:
@@ -91,6 +124,14 @@ def moveProjectedData(gpsData):
                 minY = coord[1]
             if coord[1] > maxY:
                 maxY = coord[1]
+
+    return minX, maxX, minY, maxY
+
+def moveProjectedData(gpsData):
+    """Move a dataset to 0,0 and return it with the resulting width and height"""
+
+    # Find the minimum and maximum x and y coordinates
+    minX, maxX, minY, maxY = extentOfProjectedData(gpsData)
 
     # Move the GPS data to 0,0
     movedGpsData = []
@@ -349,7 +390,7 @@ def main():
 
     # Calculate a plane projection for a GPS dataset
     # At the moment, we only have the Mercator projection
-    gpsData = calcProjection(gpsData)
+    gpsData = calcProjection(gpsData, Projection.Mercator)
 
     # Move the projected data to the 0,0 origin of a cartesial coordinate system
     # and get the raw width and height of the resulting vector data
