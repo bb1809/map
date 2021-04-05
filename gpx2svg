@@ -104,8 +104,8 @@ def wgs84Projection(coord, minY, minX):
     deltaLatitude = coord[1] - minY
     deltaLongitude = coord[0] - minX
     latitudeCircumference = equatorialCircumfence * math.cos(minY * math.pi / 180.0)
-    x = deltaLongitude * latitudeCircumference * 1000 / 360
-    y = deltaLatitude * polarCircumfence * 1000 / 360
+    x = deltaLongitude * latitudeCircumference / 360
+    y = deltaLatitude * polarCircumfence / 360
 
     return x, y
 
