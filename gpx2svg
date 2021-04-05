@@ -237,14 +237,19 @@ def writeSvgData(gpsData, width, height, cmdArgs):
     maxPixels = cmdArgs.m
     dropSinglePoints = cmdArgs.d
     outfile = cmdArgs.o
+    scaleFactor = cmdArgs.s
 
-    # Calculate the scale factor we need to fit the requested maximal output size
-    if width <= maxPixels and height <= maxPixels:
-        scale = 1
-    elif width > height:
-        scale = maxPixels / width
+    if scaleFactor == None:
+        # Calculate the scale factor we need to fit the requested maximal output size
+        if width <= maxPixels and height <= maxPixels:
+            scale = 1
+        elif width > height:
+            scale = maxPixels / width
+        else:
+            scale = maxPixels / height
+
     else:
-        scale = maxPixels / height
+        scale = 1.0 / scaleFactor
 
     # Open the requested output file or map to /dev/stdout
     if outfile != '/dev/stdout':
@@ -261,8 +266,17 @@ def writeSvgData(gpsData, width, height, cmdArgs):
     fp.write(('<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" '
               '"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n'))
     fp.write( '<!-- Created with gpx2svg {} -->\n'.format(__version__))
+
+    if scaleFactor == None:
+        unit = 'px'
+    else:
+        unit = 'mm'
+
     fp.write(('<svg xmlns="http://www.w3.org/2000/svg" version="1.1" '
-              'width="{}px" height="{}px">\n').format(width * scale, height * scale))
+              'width="{width}{unit}" height="{height}{unit}" '
+              'viewBox="0 0 {width} {height}">\n').format(unit = unit,
+                                                          width = width * scale,
+                                                          height = height * scale))
 
     # Process all track segments and generate ids and path drawing commands for them
 
@@ -338,9 +352,18 @@ def main():
         '-p', choices = [ 'mercator', 'wgs84' ], default = 'mercator',
         help = 'Projection to use. The default setting is "mercator"'
     )
-    cmdArgParser.add_argument(
+    group = cmdArgParser.add_mutually_exclusive_group()
+    group.add_argument(
         '-m', metavar = 'PIXELS', nargs = '?', type = int, default = 3000,
-        help = 'Maximum width or height of the SVG output in pixels (default: 3000)'
+        help = 'Maximum width or height of the SVG output in pixels (default: 3000). Can\'t be '
+               'used together with the "-s" switch'
+    )
+    group.add_argument(
+        '-s', metavar = 'SCALE', nargs = 1, type = int,
+        help = 'Scale factor for the WGS84 projection. When this is set, the output will be in mm '
+               'instead of px, with 1 mm representing SCALE mm of the original data (e. g. a value '
+               'of 1000 will produce an SVG file with 1 mm representing 1 m). Can\'t be used '
+               'together with the "-m" switch'
     )
     cmdArgParser.add_argument(
         '-d', action = 'store_true',
@@ -375,6 +398,22 @@ def main():
         if abspath(cmdArgs.o) == '/dev/stdout':
             cmdArgs.o = '/dev/stdout'
 
+    # Get the requested projection and it's specific arguments
+
+    if cmdArgs.p == 'mercator':
+        if cmdArgs.s != None:
+            print('The scale option can only be set when the WGS84 projection is used (-p wgs84). '
+                  'Terminating.', file = sys.stderr)
+            sys.exit(1)
+
+        projection = Projection.Mercator
+
+    elif cmdArgs.p == 'wgs84':
+        projection = Projection.WGS84
+
+        if cmdArgs.s != None:
+            cmdArgs.s = cmdArgs.s[0] / 1000.0
+
     # Get the latitude and longitude data from the given GPX file or STDIN
     gpsData = parseGpx(cmdArgs.i)
 
@@ -394,10 +433,7 @@ def main():
 
     # Calculate a plane projection for a GPS dataset
     # At the moment, we only have the Mercator projection
-    if cmdArgs.p == 'mercator':
-        gpsData = calcProjection(gpsData, Projection.Mercator)
-    elif cmdArgs.p == 'wgs84':
-        gpsData = calcProjection(gpsData, Projection.WGS84)
+    gpsData = calcProjection(gpsData, projection)
 
     # Move the projected data to the 0,0 origin of a cartesial coordinate system
     # and get the raw width and height of the resulting vector data
