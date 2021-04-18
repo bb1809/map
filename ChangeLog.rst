@@ -1,6 +1,9 @@
 * New: Added true-scale conversion using a WGS84 projection. Big thanks to Hans Busch for
   contributing the respective code!
 
+* Change: The project is now licensed under the terms of the GPLv3 or later. Also switched all
+  headers to SPDX license identifiers and added license notes to all files.
+
 * Change: ChangeLog is now a valid RST document
 
 ====================================================================================================
