@@ -1,3 +1,7 @@
+====================================================================================================
+gpx2svg 0.2.0 released (05.09.2021)
+====================================================================================================
+
 * New: Added true-scale conversion using a WGS84 projection. Big thanks to Hans Busch for
   contributing the respective code!
 
