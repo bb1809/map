@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 
-""" SPDX-FileCopyrightText: 2012-2021 Tobias Leupold <tobias.leupold@gmx.de>
+# SPDX-FileCopyrightText: 2012-2022 Tobias Leupold <tl at stonemx dot de>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-    SPDX-License-Identifier: GPL-3.0-or-later
-
+"""
     gpx2svg - Convert GPX formatted geodata to Scalable Vector Graphics (SVG)
 """
+
 __version__ = '@VERSION@'
 
 import argparse
