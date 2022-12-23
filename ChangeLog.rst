@@ -1,3 +1,81 @@
+.. SPDX-FileCopyrightText: 2012-2022 Tobias Leupold <tl at stonemx dot de>
+
+   SPDX-License-Identifier: CC-BY-SA-4.0
+
+   The format of this file is inspired by keepachangelog.com, but uses ReStructuredText instead of
+   MarkDown. Keep the line length at no more than 100 characters (with the obvious exception of the
+   header template below, which needs to be indented by three spaces)
+
+   Here's the header template to be pasted at the top after a new release:
+
+   ====================================================================================================
+   [unreleased]
+   ====================================================================================================
+
+   Added
+   =====
+
+   * for new features.
+
+   Changed
+   =======
+
+   * for changes in existing functionality.
+
+   Deprecated
+   ==========
+
+   * for soon-to-be removed features.
+
+   Removed
+   =======
+
+   * for now removed features.
+
+   Fixed
+   =====
+
+   * for any bug fixes.
+
+   Security
+   ========
+
+   * in case of vulnerabilities.
+
+====================================================================================================
+[unreleased]
+====================================================================================================
+
+Added
+=====
+
+* for new features.
+
+Changed
+=======
+
+* for changes in existing functionality.
+
+Deprecated
+==========
+
+* for soon-to-be removed features.
+
+Removed
+=======
+
+* for now removed features.
+
+Fixed
+=====
+
+* for any bug fixes.
+
+Security
+========
+
+* in case of vulnerabilities.
+
 ====================================================================================================
 gpx2svg 0.2.0 released (05.09.2021)
 ====================================================================================================
